@@ -26,22 +26,45 @@ def powr(ind, by):
         out *= ind
     return out
 
-def WriteToSegment256 (AddressOne, AddressTwo, Data: list):
+def WriteToSegment256 (LongAddress, ShortAddress, Data: list):
 
     WholeData = b''
 
     for Byte in Data:
-        WholeData += chr(int(Byte, 16)).encode()
-
-    TotalAddressStart = AddressOne * powr(2, 16)
-    TotalAddressStart += AddressTwo * powr(2, 8)
-
-    TotalAddressEnd = TotalAddressStart + 256
+        WholeData += chr(int(Byte, 16)).encode() 
 
     OldValue = open('drives\C.drv', 'rb').read()
 
-    NewValue = OldValue[:TotalAddressStart] + WholeData + OldValue[TotalAddressEnd:]
+    SegmentedHDIMG = wrap(OldValue, 259, 'norm')
 
+    SegmentLoc = 'error'
+    
+    for CurrantSegmentLocation in SegmentedHDIMG:
+
+        Segment = SegmentedHDIMG[CurrantSegmentLocation]
+        
+        AddressBytes = Segment[:3]
+        CurrantLongAddress = int(hex(ord(AddressBytes[0]))[2:] + hex(ord(AddressBytes[1]))[2:], 16)
+        if CurrantLongAddress != LongAddress:
+            continue
+        CurrantShortAddress = ord(AddressBytes[2])
+        if CurrantShortAddress != ShortAddress:
+            continue
+
+        SegmentLoc = CurrantSegmentLocation
+        
+        break
+
+    if type(SegmentLoc) == str:
+        
+        # TODO: ?if segment not made yet?
+        
+        pass
+
+    SegmentedHDIMG[SegmentLoc] = AddressByte + WholeData
+
+    NewValue = ''.join(SegmentedHDIMG)
+    
     open('drives\C.drv', 'wb').write(NewValue)
 
 def WriteToByte (AddressOne, AddressTwo, Data: int):
