@@ -28,17 +28,10 @@ while True:
         IMGMOUNT = ' '.join(ActionCommands[1:])
 
     if ActionCommands[0].upper() == 'BURN':
-
-        OldHD = open(HARD_DRIVE, 'rb').read()
+                
         Image = open(IMGMOUNT  , 'rb').read()
-        NewHD = Image + OldHD[len(Image):]
 
-        del OldHD
-        del Image
-
-        open(HARD_DRIVE, 'wb').write(NewHD)
-
-        del NewHD
+        open(HARD_DRIVE, 'wb').write(Image)
 
     if ActionCommands[0].upper() == 'QUIT':
         quit(0)
