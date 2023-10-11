@@ -56,12 +56,14 @@ def WriteToSegment256 (LongAddress, ShortAddress, Data: list):
         break
 
     if type(SegmentLoc) == str:
-        
-        # TODO: ?if segment not made yet?
-        
-        pass
 
-    SegmentedHDIMG[SegmentLoc] = AddressByte + WholeData
+        ByteAddress = LongAddress.to_bytes('big', 2) + ShortAddress.to_bytes('big', 1)
+
+        SegmentedHDIMG += [ByteAddress + WholeData]
+    
+    else:
+    
+        SegmentedHDIMG[SegmentLoc] = AddressByte + WholeData
 
     NewValue = ''.join(SegmentedHDIMG)
     
@@ -69,18 +71,7 @@ def WriteToSegment256 (LongAddress, ShortAddress, Data: list):
 
 def WriteToByte (AddressOne, AddressTwo, Data: int):
 
-    WholeData = chr(Data).encode()
-
-    TotalAddressStart = AddressOne * powr(2, 16)
-    TotalAddressStart += AddressTwo * powr(2, 16)
-
-    TotalAddressEnd = TotalAddressStart + 1
-
-    OldValue = open('drives\C.drv', 'rb').read()
-
-    NewValue = OldValue[:TotalAddressStart] + WholeData + OldValue[TotalAddressEnd:]
-
-    open('drives\C.drv', 'wb').write(NewValue)
+    
 
 def ReadSegment256 (AddressOne, AddressTwo):
 
