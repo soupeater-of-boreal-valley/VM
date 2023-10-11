@@ -1,0 +1,100 @@
+-- asm key --
+    $ -> hex value
+    @ -> RAM adr
+    % -> register
+    # -> hard drive location
+
+-- hex key --
+    non hex characters are values that are variable.
+
+00 00 00 00  halt
+
+r0 10 00 aa  movs %r, $a
+r0 11 aa aa  movl %r, $a
+r0 12 00 0a  movs %r, %a
+r0 13 00 0a  movl %r, %a
+r0 14 00 ab  movs %r, @[%a:%b]         ; a -> 16 bit ; b -> 8 bit
+a0 15 00 br  movs @[%a:%b], %r         ; same def of a,b as in prev
+
+r0 20 00 aa  adds %r, $a
+r0 21 aa aa  addl %r, $a
+r0 22 00 0a  adds %r, %a
+r0 23 00 0a  addl %r, %a
+
+r0 30 00 aa  subs %r, $a
+r0 31 aa aa  subl %r, $a
+r0 32 00 0a  subs %r, %a
+r0 33 00 0a  subl %r, %a
+
+r0 40 00 aa  muls %r, $a
+r0 41 aa aa  mull %r, $a
+r0 42 00 0a  muls %r, %a
+r0 43 00 0a  mull %r, %a
+
+r0 50 00 aa  divs %r, $a
+r0 51 aa aa  divl %r, $a
+r0 52 00 0a  divs %r, %a
+r0 53 00 0a  divl %r, %a
+
+r0 60 00 aa  mods %r, $a
+r0 61 aa aa  modl %r, $a
+r0 62 00 0a  mods %r, %a
+r0 63 00 0a  modl %r, %a
+
+r0 70 00 aa  nots %r, $a
+r0 71 aa aa  notl %r, $a
+r0 72 00 0a  nots %r, %a
+r0 73 00 0a  notl %r, %a
+
+; swap locations
+; h - hard_drive
+; r - RAM
+; swc - swap
+; rpl - replace
+r0 80 aa aa  swcr @%r, @$a
+r0 81 00 0a  swcr @%r, @%a
+rb 82 aa aa  swch #%r:%b, @$a
+rb 83 00 0a  swch #%r:%b, @%a
+r0 85 0a bc  swch @[%r:%a], #[%b:%c]
+r0 86 0a bc  swch #[%r:%a], @[%b:%c]
+r0 87 aa aa  rplr @%r, @$a
+r0 88 00 0a  rplr @%r, @%a
+rb 89 aa aa  rplh #%r:%b, @$a
+rb 8A 00 0a  rplh #%r:%b, @%a
+rb 8B aa aa  rplh @%r, #$a:%b
+rb 8C 00 0a  rplh @%r, #%a:%b
+
+r0 90 00 0a  cmps %r, %a
+r0 91 00 aa  cmps %r, $a
+r0 92 00 0a  cmpl %r, %a
+r0 93 aa aa  cmpl %r, $a
+
+rr A0 aa aa  jnel [$r:$a]
+r0 A1 00 00  jnes %r
+rr A2 aa aa  jnzl [$r:$a]
+r0 A3 00 00  jnzs %r
+rr A4 aa aa  jnml [$r:$a]
+r0 A5 00 00  jnms %r
+rr A6 aa aa  jnll [$r:$a]
+a0 A7 00 00  jnls %a
+00 A8 00 aa  jmps $a
+r0 A9 00 0a  jmpl [%r:%a]
+aa AA bb bb  jmpl [$b:$a]
+r0 AB 00 00  brns %r
+00 AC 00 aa  brns $a
+r0 AD 00 0a  brnl [%r:%a]
+aa AE bb bb  brnl [$b:$a]
+00 AF 00 00  ret
+
+r0 B0 00 00  pshs %r
+00 B1 00 aa  pshs $a
+r0 B2 00 00  pshl %r
+00 B3 aa aa  pshl $a
+r0 B4 00 00  pops %r
+r0 B5 00 00  popl %r
+
+ra C0 00 00  plas %r, %a
+ra C1 00 00  plal %r, %a
+
+aa E0 bb bb  bnel [$a:$b]
+aa E1 bb bb  bnzl [$a:$b]

@@ -1,0 +1,17 @@
+    .TO      0000H             ; start program section
+    MOV         AX, FF10H      ; get long address (16 bit)
+    FLP                        ; flip to screen
+    MOV         AH, 00H        ; get short address (8 bit)
+    MOV         AL, 01H        ; text mode value ( 01 )
+    MOV    [AX:AH], AL         ; place value to memory location
+    MOV       CL11, FFH        ; R255
+    MOV       CL12, FFH        ; G255
+    MOV       CL13, FFH        ; B255
+    MOV         PC, 00H        ; loop
+    .TO      FF00H             ; graphical memory data section
+    DB "HELLO WORLD!"          ; place data seen by 'GPU'.
+
+    --- compiles to ---
+
+0000 1011ff10 01000002 10100000 20100001 10150012 501000FF 601000FF 701000FF
+ff00 48454C4C4F20574F524C4421

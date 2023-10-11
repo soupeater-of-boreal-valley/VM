@@ -1,0 +1,110 @@
+|-1-|----2-----|--------------3----------------|---------------4---------------->
+    .define     START                           $0000
+    .define     LOOP                            $0001
+    .define     GRAPHICAL_MEMORY                $FF00
+    .define     MUSIC                           $0002
+    .define     RETURN                          $1000
+    .define     NOTESHEET                       $0003
+
+    .TO         START
+    MOV         AX, 			                $FF10
+    FLP                        
+    MOV         AH,                             $00
+    MOV         AL,                             $01
+    MOV         [AX:AH],                        AL
+    MOV         CL11,                           $FF
+    MOV         CL12,                           $FF
+    MOV         CL13,                           $FF
+    MOV         AX,                             MUSIC
+    MOV         R1X,                            NOTESHEET
+    MOV         AH,                             $00
+    FLP
+    JMP         LOOP,                           $00
+
+    .TO         LOOP
+    MOV         R1,                             [AX:AH]
+    ADD         AH,                             1
+    MOV         R2,                             [AX:AH]
+    ADD         AH,                             1
+    CMP         R1,                             $08
+    JNZ         RETURN,                         $00
+    MOV         R1,                             [R1X:R1]
+    PLA         R1,                             R2
+    FLP
+    JMP         LOOP,                           $00
+    .TO         RETURN
+    HLT
+
+    .TO         MUSIC
+    DB          $0701070107010401
+    DB          $0601060106010401
+    DB          $0701070107010701070107010701
+    DB          $0601060106010401
+    DB          $0701070106010401
+    DB          $070107010601040103010701
+    DB          $08
+
+    .TO         NOTESHEET
+    DB          27, 30, 32, 36, 41, 43, 48
+
+    .TO         GRAPHICAL_MEMORY
+    DB          "PLAYING SOUND . . . "
+
+    ------- compiles to -------
+ROM LOAD Mach.Code.:
+0000 1011ff10 01000002 10100000 20100001 10150012 501000FF 601000FF 701000FF 10110001 20110003 01000002 00AA0001
+0001 30140011 10200001 40140011 10200001 30910008 00A21000 30140022 33C00000 01000002 00100000
+0002 0701070107010401060106010601040107010701070107010701070107010601060106010401070107010601040107010701060104010301070108
+0003 1B1E2024292B30
+1000 00
+FF00 504C4159494E4720534F554E44202E202E202E20
+
+as shown by built-in decomiler: ( post-load ROM )
+-----------  START  -------------------------------------------
+fx0000.03 ~ 1011FF10   movl %ax,            $FF10
+fx0000.07 ~ 01000002   SYS_FLIP
+fx0000.0b ~ 10100000   movs %ah,            $00
+fx0000.0f ~ 20100001   movs %al,            $01
+fx0000.13 ~ 10150012   movs @[%ax:%pc],     %al
+fx0000.17 ~ 501000FF   movs %cl1,           $FF
+fx0000.1b ~ 601000FF   movs %cl1<1>,        $FF
+fx0000.1f ~ 701000FF   movs %cl1<2>,        $FF
+fx0000.23 ~ 10110001   movl %ax,            $0001
+fx0000.27 ~ 20110003   movl %r1x,           $0003
+fx0000.2b ~ 01000002   SYS_FLIP
+fx0000.2f ~ 00AA0001   jmpl $00,            $0001
+-----------  LOOP   --------------------------------------------
+fx0001.03 ~ 30140011   movs %r1,            @[%ax:%ah]
+fx0001.07 ~ 10200001   adds %ah,            $01
+fx0001.0b ~ 40140011   movs %r2,            @[%ax:%ah]
+fx0001.0f ~ 10200001   adds %ah,            $01
+fx0001.13 ~ 30910008   cmps %r1,            $08
+fx0001.17 ~ 00A21000   jnzl $00,            $1000
+fx0001.1b ~ 30140022   movs %r1,            @[%r1x:%al]
+fx0001.1f ~ 33C00000   plys %r1
+fx0001.23 ~ 00100000   movs %pc,            $00
+-----------  MUSIC  -------------------------------------------
+fx0002.03 ~ 07010701   noop <POSSIBLE ERROR>     ; NOT PROGRAM CODE.            
+fx0002.07 ~ 07010401   noop <POSSIBLE ERROR>                 
+fx0002.0b ~ 06010601   noop <POSSIBLE ERROR>                 
+fx0002.0f ~ 06010401   noop <POSSIBLE ERROR>                 
+fx0002.13 ~ 07010701   noop <POSSIBLE ERROR>                 
+fx0002.17 ~ 07010701   noop <POSSIBLE ERROR>                 
+fx0002.1b ~ 07010701   noop <POSSIBLE ERROR>                 
+fx0002.1f ~ 07010601   noop <POSSIBLE ERROR>                 
+fx0002.23 ~ 06010601   noop <POSSIBLE ERROR>                 
+fx0002.27 ~ 04010701   noop <POSSIBLE ERROR>                 
+fx0002.2b ~ 07010601   noop <POSSIBLE ERROR>                 
+fx0002.2f ~ 04010701   noop <POSSIBLE ERROR>                 
+fx0002.33 ~ 07010601   noop <POSSIBLE ERROR>                 
+fx0002.37 ~ 04010301   noop <POSSIBLE ERROR>                 
+fx0002.3b ~ 07010800   noop <POSSIBLE ERROR>     
+----------- NOTESHEET ----------------------------------------
+fx0003.03 ~ 1B1E2024   noop <POSSIBLE ERROR>     ; NOT PROGRAM CODE.             
+fx0003.07 ~ 292B3000   noop <POSSIBLE ERROR>
+----------- GRAPHICS M----------------------------------------
+fxff00.03 ~ 504C4159   noop <POSSIBLE ERROR>     ; NOT PROGRAM CODE.
+fxff00.07 ~ 494E4720   noop <POSSIBLE ERROR>
+fxff00.0b ~ 534F554E   noop <POSSIBLE ERROR>
+fxff00.0f ~ 44202E20   adds %r2,            $20
+fxff00.13 ~ 2E202E20   adds %al,            $20

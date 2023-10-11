@@ -1,0 +1,17 @@
+    .define             STARTSECTION        $0000
+    .define             SECONDARYSECTION    $0001
+
+    .TO                 STARTSECTION
+    MOV                 AH,                 $08
+    CMP                 AH,                 $08
+    JNZ                 SECONDARYSECTION
+    HLT
+    .TO                 SECONDARYSECTION
+    FLP
+    JMP                 SECONDARYSECTION
+
+
+    ------ compiles to --------
+
+0000 10100008 10910008 00A20001
+0001 01000002 00AA0001

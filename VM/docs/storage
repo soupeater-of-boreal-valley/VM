@@ -1,0 +1,29 @@
+    try:
+        registers['KBI'][0].mov(inp_)
+    except:
+           if inp_ == K_LEFT:
+                registers['KBI'][0].mov(1)
+
+            elif inp_ == K_RIGHT:
+                registers['KBI'][0].mov(2)
+
+            elif inp_ == K_UP:
+                registers['KBI'][0].mov(3)
+
+            elif inp_ == K_DOWN:
+                registers['KBI'][0].mov(4)
+
+            elif inp_ == K_CAPSLOCK:
+                registers['KBI'][0].mov(5)
+
+            elif inp_ == K_TAB:
+                registers['KBI'][0].mov(6)
+
+            elif inp_ == K_LSHIFT:
+                registers['KBI'][0].mov(7)
+
+            elif inp_ == K_RSHIFT:
+                registers['KBI'][0].mov(8)
+
+            else:
+                print('UKNWON KEY INPUT IGNORED')

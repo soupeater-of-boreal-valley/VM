@@ -1,0 +1,20 @@
+    .define         VGAMEMORY       $FF00
+    .define         START           $0000
+
+    .TO             START
+    MOV         AX, FF10H      ; get long address (16 bit)
+    FLP                        ; flip to screen
+    MOV         AH, 00H        ; get short address (8 bit)
+    MOV         AL, 03H        ; text mode value ( 01 )
+    MOV    [AX:AH], AL         ; place value to memory location
+    MOV       CL11, FFH        ; R255
+    MOV       CL12, FFH        ; G255
+    MOV       CL13, FFH        ; B255
+    FLP
+    JMP             START
+
+    .TO         VGAMEMORY
+    DB              $0020012003200420052006200720082009200A200B200C200D200E200F20
+
+0000 1011ff10 01000002 10100000 20100003 10150012 501000FF 601000FF 01000002 00AA0000
+FF00 0023 0123 0223 0323 0423 0523 0623 0723 0823 0923 0A23 0B23 0C23 0D23 0E23 0F23

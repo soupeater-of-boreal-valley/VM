@@ -1,0 +1,50 @@
+    .define     ERROR_BOOTING_SEGMENT           1000H
+    .define     FINDING_BOOTLOADER_SEGMENT      1001H
+    .define     FINDING_BOOTLOADER_PROCESS      0005H
+    .define     LOAD_SEGMENT                    000AH
+    .define     STARTER_SEGMENT                 0000H
+    .define     BOOTLOADER_PROCESS_PTR          07C0H
+    .define     BOOTLOADER_TEST_SEGMENT_PTR     0002H
+    .define     GRAPHICAL_MEMORY_SEGMENT        FF00H
+    .define     GRAPHICAL_MODE_SEGMENT          FF10H
+    .define     ERROR                           2000H
+
+    .TO         STARTER_SEGMENT
+    MOV         AX,                             GRAPHICAL_MODE_SEGMENT          ; get address of mode segment
+    MOV         AH,                             00H                             ; get address of mode byte
+    MOV         [AX:AH],                        01H                             ; set text mode
+    MOV         AX,                             GRAPHICAL_MEMORY_SEGMENT        ; get address of text GM
+    RPL         @AX,                            @FINDING_BOOTLOADER_SEGMENT     ; move the finding bootloader text to the graphical memory segment
+    MOV         AX,                             00H                             ; clear AX
+    MOV         R1X,                            BOOTLOADER_TEST_SEGMENT_PTR     ; move the test segment address to R1X
+    JMP         FINDING_BOOTLOADER_PROCESS                                      ; go to the finding bootloader segment
+
+    .TO         FINDING_BOOTLOADER_PROCESS
+    RPL         @R1X,                           #AX:AH                          ; get chunk of memory from hard_drive
+    MOV         AL,                             AAH                             ; get value to compare
+    MOV         R1,                             FFH                             ; get address
+    MOV         R2,                             [R1X:R1]                        ; get compared byte
+    CMP         R2,                             AL                              ; if byte
+    JNZ         LOAD_SEGMENT                                                    ; if found load
+    CMP         AX,                             FFFFH                           ; if all checked
+    JNZ         ERROR                                                           ; error
+    ADD         AX,                             0001H                           ; add one
+    JMP         FINDING_BOOTLOADER_PROCESS                                      ; loop
+
+    .TO         LOAD_SEGMENT
+    MOV         AX,                             BOOTLOADER_PROCESS_PTR          ; get test seg
+    RPL         AX,                             BOOTLOADER_TEST_SEGMENT         ; move tested segment to bootloader process
+    BRN         BOOTLOADER_TEST_SEGMENT                                         ; jump to segment
+    HLT
+
+    .TO         ERROR
+    MOV         CL11,                           FFH                             ; red 255
+    MOV         AX,                             GRAPHICAL_MEMORY_SEGMENT        ; get GM
+    RPL         AX,                             ERROR_BOOTING_SEGMENT           ; display error
+    JMP         ERROR
+
+    .TO         ERROR_BOOTING_SEGMENT
+    DB          "ERROR IN BOOT"
+
+    .TO         FINDING_BOOTLOADER_SEGMENT
+    DB          "LOADING BOOTLOADER"
